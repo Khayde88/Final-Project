@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
+from todo import todo_router
 
 app = FastAPI()
 
@@ -18,6 +19,8 @@ app.add_middleware(
 @app.get("/")
 async def read_index():
     return FileResponse("./Home.html")
+
+app.include_router(todo_router, tags=["todo"], prefix="/todo")  
 
 app.mount("/", StaticFiles(directory="Frontend"), name="static")
 
