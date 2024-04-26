@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery List App</title>
+</head>
+<body>
+    <h1>Grocery List App</h1>
+
+    <div>
+        <h2>Add Grocery Item</h2>
+        <input type="text" id="itemName" placeholder="Enter item name">
+        <input type="number" id="itemPrice" placeholder="Enter item price">
+        <input type="text" id="itemPicture" placeholder="Enter picture URL">
+        <button onclick="addGrocery()">Add Item</button>
+    </div>
+
+    <div>
+        <h2>Grocery List</h2>
+        <ul id="groceryList"></ul>
+    </div>
+
+    <script>
+        // Function to add a grocery item
+        function addGrocery() {
+            const itemName = document.getElementById('itemName').value;
+            const itemPrice = parseFloat(document.getElementById('itemPrice').value);
+            const itemPicture = document.getElementById('itemPicture').value;
+
+            fetch('/api/groceries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: itemName, price: itemPrice, picture: itemPicture }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert('Grocery item added successfully!');
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemPrice').value = '';
+                document.getElementById('itemPicture').value = '';
+                fetchGroceries();
+            })
+            .catch(error => {
+                console.error('Error adding grocery item:', error);
+                alert('Failed to add grocery item. Please try again.');
+            });
+        }
+
+        // Function to fetch and display all groceries
+        function fetchGroceries() {
+            fetch('/api/groceries')
+                .then(response => response.json())
+                .then(data => {
+                    const groceryListElement = document.getElementById('groceryList');
+                    groceryListElement.innerHTML = '';
+                    data.groceries.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${item.name} - $${item.price}`;
+                        groceryListElement.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching groceries:', error);
+                    alert('Failed to fetch grocery list. Please try again.');
+                });
+        }
+
+        // Initial fetch of groceries when the page loads
+        fetchGroceries();
+    </script>
+</body>
+</html>

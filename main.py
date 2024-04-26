@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 from pymongo import MongoClient
+from api import groceries
 
 app = FastAPI()
 
@@ -42,6 +43,8 @@ async def read_index():
 
 
 app.mount("/", StaticFiles(directory="Frontend"), name="static")
+
+app.include_router(groceries.router)
 
 # Start the FastAPI application
 if __name__ == "__main__":
