@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 
-uri = ""
+uri = "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-client = MongoClient("mongodb://localhost:27017/")
+client = MongoClient(uri)
+
+
 db = client["grocery_db"]
 collection = db["grocery_items"]
 
