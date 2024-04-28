@@ -82,6 +82,10 @@ async def read_filter():
 @app.get("/sl1")
 async def read_sl1():
     return FileResponse("./Frontend/SL1.html")
+#navigate to EL.html
+@app.get("/el")
+async def read_el():
+    return FileResponse("./Frontend/EL.html")
 
 # Trying to get the input from the user
 
@@ -150,6 +154,29 @@ async def delete_saved_item(item_id: str):
         return {"message": "Item deleted successfully"}
     else:
         raise HTTPException(status_code=404, detail="Item not found")
+
+# Import necessary modules
+from fastapi import HTTPException
+
+# Update endpoint for modifying existing items
+@app.put("/update/{item_id}")
+async def update_item(item_id: PydanticObjectId, updated_item: StoreItem):
+    # Get the existing item
+    existing_item = await StoreItem.get(item_id)
+    
+    # If the item doesn't exist, raise HTTPException
+    if not existing_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    # Update the fields of the existing item
+    existing_item.date = updated_item.date
+    existing_item.stores = updated_item.stores
+    existing_item.location = updated_item.location
+    
+    # Save the updated item
+    await existing_item.save()
+    
+    return existing_item
 
 
 if __name__ == "__main__":
