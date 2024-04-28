@@ -51,41 +51,41 @@ async def delete_item(item_id: PydanticObjectId):
 
 @app.get("/")
 async def read_index():
-    return FileResponse("Home.html")
+    return FileResponse("Frontend/Home.html")
 
 
-@app.get("/Catagories")
+@app.get("/index")
 async def read_profile():
-    return FileResponse("Catagories.html")
+    return FileResponse("Frontend/index.html")
 
 @app.get("/inputgenerated")
 async def read_input_generated():
-    return FileResponse("InputGenerated.html")
+    return FileResponse("Frontend/InputGenerated.html")
 
 # List Complete page
 @app.get("/listcomplete")
 async def read_list_complete():
-    return FileResponse("ListComplete.html")
+    return FileResponse("Frontend/ListComplete.html")
 
 # Profile page
 @app.get("/profile")
 async def read_profile():
-    return FileResponse("Profile.html")
+    return FileResponse("Frontend/Profile.html")
 
 # Price Update page
 @app.get("/priceupdate")
 async def read_price_update():
-    return FileResponse("PriceUpdate.html")
+    return FileResponse("Frontend/PriceUpdate.html")
 
 # Filter page
 @app.get("/filter")
 async def read_filter():
-    return FileResponse("Filter.html")
+    return FileResponse("Frontend/Filter.html")
 
 # SL1 page
 @app.get("/sl1")
 async def read_sl1():
-    return FileResponse("SL1.html")
+    return FileResponse("Frontend/SL1.html")
 
 
 

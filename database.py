@@ -7,7 +7,7 @@ mycol = mydb["SavedList"]
 mydict = {
   "date": "1/15/2023",
   "stores": ["Target", "Whole Foods Market", "Fareway"],
-  "location": "Des Moines, Iowa"
+  "location": "Noahs Second Test, Iowa"
 }
 
 
