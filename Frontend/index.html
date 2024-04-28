@@ -3,74 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grocery List App</title>
+    <title>My Grocery App</title>
 </head>
 <body>
-    <h1>Grocery List App</h1>
+    <h1>Welcome to My Grocery App</h1>
+    
+    <!-- Form to submit data to MongoDB -->
+    <form id="mongodb-form">
+        <label for="user-input">Enter your data:</label><br>
+        <input type="text" id="user-input" name="user-input"><br>
+        <button type="submit">Submit</button>
+    </form>
 
+    <!-- Display section for saved list -->
     <div>
-        <h2>Add Grocery Item</h2>
-        <input type="text" id="itemName" placeholder="Enter item name">
-        <input type="number" id="itemPrice" placeholder="Enter item price">
-        <input type="text" id="itemPicture" placeholder="Enter picture URL">
-        <button onclick="addGrocery()">Add Item</button>
-    </div>
-
-    <div>
-        <h2>Grocery List</h2>
-        <ul id="groceryList"></ul>
+        <h2>Saved List</h2>
+        <ul id="saved-list"></ul>
     </div>
 
     <script>
-        // Function to add a grocery item
-        function addGrocery() {
-            const itemName = document.getElementById('itemName').value;
-            const itemPrice = parseFloat(document.getElementById('itemPrice').value);
-            const itemPicture = document.getElementById('itemPicture').value;
+        document.getElementById("mongodb-form").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            // Get user input from the textbox
+            const userInput = document.getElementById("user-input").value;
 
-            fetch('/api/groceries', {
+            // Send user input to the FastAPI endpoint
+            fetch('/run-script', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify({ name: itemName, price: itemPrice, picture: itemPicture }),
+                body: new URLSearchParams({
+                    'input_data': userInput
+                })
             })
             .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                alert('Grocery item added successfully!');
-                document.getElementById('itemName').value = '';
-                document.getElementById('itemPrice').value = '';
-                document.getElementById('itemPicture').value = '';
-                fetchGroceries();
+            .then(data => console.log(data))
+            .then(() => alert('Data sent to MongoDB!'))
+            //Clear the textbox after submission
+            .then(() => document.getElementById("user-input").value = "")
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Function to delete an item from the saved list
+        function deleteItem(itemId) {
+            fetch(`/delete-saved-item/${itemId}`, {
+                method: 'DELETE'
             })
-            .catch(error => {
-                console.error('Error adding grocery item:', error);
-                alert('Failed to add grocery item. Please try again.');
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Reload the page to reflect the updated list
+                } else {
+                    console.error('Error deleting item');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Fetch and display the saved list from MongoDB
+        fetch('/read-saved-list')
+        .then(response => response.json())
+        .then(data => {
+            const savedListElement = document.getElementById('saved-list');
+            data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `date: ${item.date}, stores: ${item.stores.join(', ')}, location: ${item.location}`;
+                
+                // Add a delete button/icon
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '❌';
+                deleteButton.onclick = () => deleteItem(item._id);
+                
+                listItem.appendChild(deleteButton);
+                savedListElement.appendChild(listItem);
             });
-        }
-
-       /* // Function to fetch and display all groceries
-        function fetchGroceries() {
-            fetch('/api/groceries')
-                .then(response => response.json())
-                .then(data => {
-                    const groceryListElement = document.getElementById('groceryList');
-                    groceryListElement.innerHTML = '';
-                    data.groceries.forEach(item => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `${item.name} - $${item.price}`;
-                        groceryListElement.appendChild(listItem);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching groceries:', error);
-                    alert('Failed to fetch grocery list. Please try again.');
-                });
-        }
-
-        // Initial fetch of groceries when the page loads
-        fetchGroceries(); */
+        })
+        .catch(error => console.error('Error:', error));
     </script>
 </body>
 </html>
+
