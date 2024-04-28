@@ -1,3 +1,69 @@
+<!--
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Lists</title>
+</head>
+<body>
+    <h1>Edit Lists</h1>
+    <div id="lists">
+         Lists will be displayed here dynamically 
+    </div>
+    <script>
+        async function fetchLists() {
+            const response = await fetch('/read-saved-list');
+            const data = await response.json();
+
+            const listsContainer = document.getElementById('lists');
+            listsContainer.innerHTML = '';
+
+            data.forEach(list => {
+                const listDiv = document.createElement('div');
+                listDiv.innerHTML = `
+                    <h2>${list.location}</h2>
+                    <ul id="list-${list._id}">
+                        <li>Date: ${list.date}</li>
+                        <li>Stores: ${list.stores.join(', ')}</li>
+                        <button onclick="editItem('${list._id}', '${list.date}', '${list.stores.join(', ')}', '${list.location}')">Edit</button>
+                    </ul>
+                `;
+                listsContainer.appendChild(listDiv);
+            });
+        }
+
+        async function editItem(listId, currentDate, currentStores, currentLocation) {
+            const newDate = prompt(`Enter new date:`, currentDate);
+            const newStores = prompt(`Enter new stores separated by commas:`, currentStores);
+            const newLocation = prompt(`Enter new location:`, currentLocation);
+            if (newDate !== null && newStores !== null && newLocation !== null) {
+                const response = await fetch(`/update/${listId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        date: newDate,
+                        stores: newStores.split(',').map(store => store.trim()),
+                        location: newLocation
+                    })
+                });
+                if (response.ok) {
+                    fetchLists(); // Refresh the lists after update
+                } else {
+                    alert('Failed to update item.');
+                }
+            }
+        }
+
+        window.onload = fetchLists;
+    </script>
+</body>
+</html>
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,25 +89,29 @@
                 listDiv.innerHTML = `
                     <h2>${list.location}</h2>
                     <ul id="list-${list._id}">
-                        ${list.stores.map((store, index) => `<li>${store} <button onclick="editItem('${list._id}', ${index}, '${store}')">Edit</button></li>`).join('')}
+                        <li>Date: ${list.date}</li>
+                        <li>Stores: ${list.stores.join(', ')}</li>
+                        <button onclick="editItem('${list._id}', '${list.date}', '${list.stores.join(', ')}', '${list.location}')">Edit</button>
                     </ul>
                 `;
                 listsContainer.appendChild(listDiv);
             });
         }
 
-        async function editItem(listId, index, currentValue) {
-            const newValue = prompt(`Enter new value for index ${index + 1}:`, currentValue);
-            if (newValue !== null) {
+        async function editItem(listId, currentDate, currentStores, currentLocation) {
+            const newDate = prompt(`Enter new date:`, currentDate);
+            const newStores = prompt(`Enter new stores separated by commas:`, currentStores);
+            const newLocation = prompt(`Enter new location:`, currentLocation);
+            if (newDate !== null && newStores !== null && newLocation !== null) {
                 const response = await fetch(`/update/${listId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        date: "", // Add the date field
-                        stores: [], // Add the stores field
-                        location: newValue
+                        date: newDate,
+                        stores: newStores.split(',').map(store => store.trim()),
+                        location: newLocation
                     })
                 });
                 if (response.ok) {
@@ -56,4 +126,3 @@
     </script>
 </body>
 </html>
-
