@@ -4,6 +4,7 @@ from starlette.responses import FileResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie, Document, PydanticObjectId
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 
 app = FastAPI()
 
@@ -15,12 +16,43 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+class StoreItem(Document):
+    date: str
+    stores: List[str]
+    location: str
+
+    class Settings:
+        collection = "store_items"
+
+# Initialize Beanie with the StoreItem Document model
+@app.on_event("startup")
+async def init_db():
+    client = AsyncIOMotorClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    await init_beanie(database=client.grocery_db, document_models=[StoreItem])
+
+# CRUD Endpoints
+@app.post("/items/", response_model=StoreItem)
+async def create_item(item: StoreItem):
+    await item.insert()
+    return item
+
+@app.get("/items/")
+async def get_items():
+    items = await StoreItem.find_all().to_list()
+    return items
+
+@app.delete("/delete/{item_id}")
+async def delete_item(item_id: PydanticObjectId):
+    item = await StoreItem.get(item_id)
+    if item:
+        await item.delete()
+        return {"message": "Item deleted successfully"}
+    raise HTTPException(status_code=404, detail="Item not found")
+
 @app.get("/")
 async def read_index():
-    try:
-        return FileResponse("Home.html")  # Direct path to Home.html
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Index file not found")
+    return FileResponse("Home.html")
+
 
 @app.get("/Catagories")
 async def read_profile():
@@ -54,24 +86,7 @@ async def read_filter():
 @app.get("/sl1")
 async def read_sl1():
     return FileResponse("SL1.html")
-@app.delete("/delete/{item_id}")
-async def delete_item(item_id: PydanticObjectId):
-    item = await Sample.get(item_id)
-    if item:
-        await item.delete()
-        return {"message": "Item deleted successfully"}
-    raise HTTPException(status_code=404, detail="Item not found")
 
-class Sample(Document):
-    name: str
-
-async def init_db():
-    client = AsyncIOMotorClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    await init_beanie(database=client.grocery_db, document_models=[Sample])
-
-@app.on_event("startup")
-async def startup_event():
-    await init_db()
 
 
 if __name__ == "__main__":
