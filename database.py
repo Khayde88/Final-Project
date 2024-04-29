@@ -5,8 +5,8 @@ mydb = myclient["grocery_db"]
 mycol = mydb["SavedList"]
 
 mydict = {
-  "date": "1/15/2023",
-  "stores": ["Target", "Whole Foods Market", "Fareway"],
+  "date": "1/25/2023",
+  "stores": ["wewewe", "Whole Foods Market", "Fareway"],
   "location": "Des Moines, Iowa"
 }
 

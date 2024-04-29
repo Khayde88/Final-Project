@@ -22,7 +22,7 @@ class StoreItem(Document):
     location: str
 
     class Settings:
-        collection = "store_items"
+        collection = "SavedList"
 
 # Initialize Beanie with the StoreItem Document model
 @app.on_event("startup")

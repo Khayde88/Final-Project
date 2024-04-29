@@ -52,24 +52,36 @@
                 <p style="position:absolute;left:20;top:87"> <b> 26 results found. </b> </p>
             <p class="card-text">
                 <br/>
-                <ul class="list-group list-group-flush">
 
-                <!-- border -->
-                <span class="border border-dark"> <p> 3/14/2023  <i type="button" class="bi bi-trash" data-id="unique_item_id_here" onclick="deleteItem(this.getAttribute('data-id'));" style="position:static; text-align:right; font-size:1.5rem"></i>  </p> <p style="position:static;text-align: center"> <b> Hy-Vee, Walmart, Costco </b> </p>  </span>
-                <!-- location -->
-                <p style="position:static;text-align: left">  <label class="bi bi-geo-alt" style="font-size:1.3rem;position:static"></label> <b> Iowa City, Iowa </b> </p>
 
+ 
+                <div id="listContainer">
+                    <!-- Dynamic list items will be appended here by the fetchItems() function -->
+                </div>
                 
-                <!-- border -->
-                <span class="border border-dark"> <p> 2/28/2023  <i type="button" class="bi bi-trash" data-id="unique_item_id_here" onclick="deleteItem(this.getAttribute('data-id'));" style="position:static; text-align:right; font-size:1.5rem"></i>  </p> <p style="position:static;text-align: center"> <b> Aldi, Costco, Trader-Joes </b> </p>  </span>
-                <!-- location -->
-                <p style="position:static;text-align: left"> <label class="bi bi-geo-alt" style="font-size:1.3rem;position:static"></label> <b> Cedar Rapids, Iowa </b>   </p>
-
-                <!-- border -->
-                <span class="border border-dark"> <p> 1/05/2023  <i type="button" class="bi bi-trash" data-id="unique_item_id_here" onclick="deleteItem(this.getAttribute('data-id'));" style="position:static; text-align:right; font-size:1.5rem"></i>  </p> <p style="position:static;text-align: center"> <b> Target, Whole Foods Market, Fareway</b> </p>  </span>
-                <!-- location -->
-                <p style="position:static;text-align: left">  <label class="bi bi-geo-alt" style="font-size:1.3rem;position:static"></label> <b> Des Moines, Iowa </b> </p>
                 <script>
+                    function fetchItems() {
+                        fetch('/items/')
+                        .then(response => response.json())
+                        .then(items => {
+                            const listContainer = document.getElementById('listContainer');
+                            listContainer.innerHTML = ''; // Clear existing items
+                            items.forEach(item => {
+                                const itemHtml = `
+                                <ul class="list-group list-group-flush">
+                                    <span class="border border-dark">
+                                        <p>${item.date} <i type="button" class="bi bi-trash" data-id="${item.id}" onclick="deleteItem(this.getAttribute('data-id'));" style="position:static; text-align:right; font-size:1.5rem"></i></p>
+                                        <p style="position:static; text-align: center"><b>${item.stores.join(', ')}</b></p>
+                                        <p style="position:static;text-align: left"><label class="bi bi-geo-alt" style="font-size:1.3rem;position:static"></label> <b>${item.location}</b></p>
+                                    </span>
+                                </ul>`
+;
+                                listContainer.innerHTML += itemHtml;
+                            });
+                        })
+                        .catch(error => console.error('Error:', error));
+}
+
                     function deleteItem(itemId) {
                         if (!confirm('Are you sure you want to delete this item?')) {
                             return;
@@ -90,10 +102,10 @@
                                 alert('There was an error deleting the item.');
                             });
                     }
+                    window.onload = fetchItems;
                     </script>
                     
                 <br/>
-                </ul>
 
 
             </p>
