@@ -38,9 +38,6 @@
         </style>   
     </head>
     <body>
-
-        <div id="loginMessage"></div> <!--Successful login message. May have to delete-->
-
         <div class="container">
             <div id="root"></div>
         <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -72,21 +69,6 @@
           </div>
         </div>
         <script>
-            // Successfull login message JS. May have to delete
-            document.addEventListener("DOMContentLoaded", () => {
-                const loginMessage = document.getElementById("loginMessage");
-                const message = document.cookie
-                    .split("; ")
-                    .find(row => row.startsWith("login_message="))
-                    .split("=")[1];
-                
-                if (message) {
-                    loginMessage.textContent = message;
-                    // Clear the login message cookie
-                    document.cookie = "login_message=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                }
-            });
-
             function Construction(){
                 alert("Under Construction");
             }
