@@ -467,6 +467,7 @@ async def update_item(item_id: str, updated_item: StoreItem):
 ### USER AUTHENTICATION
 
 from fastapi import FastAPI, HTTPException, Depends, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -544,7 +545,11 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Redirect to home page after successful login
+    response = RedirectResponse(url="/")
+    response.set_cookie("access_token", access_token)
+    response.set_cookie("login_message", "Login successful!")
+    return response
 
 
 # Route to register a new user
@@ -560,7 +565,20 @@ async def register(
         "role": "user",  # Assign default role for new users
     }
     result = users_collection.insert_one(new_user)
-    return {"message": "User registered successfully"}
+    if result.inserted_id:
+        # User registration successful
+        message = "User registered successfully!"
+        response = RedirectResponse(url="/")
+    else:
+        # Registration failed
+        message = "Registration failed. Please try again."
+        response = RedirectResponse(
+            url="/register"
+        )  # Redirect back to registration page on failure
+
+    # Redirect to home page after registration with message
+    response.set_cookie("registration_message", message)
+    return response
 
 
 # Protected route example (requires authentication)
