@@ -293,6 +293,19 @@ async def read_sl1():
     return FileResponse("./Frontend/SL1.html")
 
 
+# Login/Register files
+
+
+@app.get("/login")
+async def read_login():
+    return FileResponse("./Frontend/login.html")
+
+
+@app.get("/register")
+async def read_register():
+    return FileResponse("./Frontend/register.html")
+
+
 # navigate to EL.html
 @app.get("/el")
 async def read_el():
@@ -459,8 +472,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pymongo import MongoClient
 from datetime import datetime, timedelta
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
 
 # JWT Settings
 SECRET_KEY = "SecretKey1234"
@@ -556,22 +567,6 @@ async def register(
 @app.get("/protected")
 async def protected_route(current_user: dict = Depends(get_current_user)):
     return {"message": "Access granted to protected route"}
-
-
-# Mount the directory containing HTML files as a static directory
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
-
-
-# Route to serve login.html
-@app.get("/login", response_class=HTMLResponse)
-async def read_login():
-    return app.get_static_file("login.html")
-
-
-# Route to serve register.html
-@app.get("/register", response_class=HTMLResponse)
-async def read_register():
-    return app.get_static_file("register.html")
 
 
 ### END USER AUTHENTICAION
