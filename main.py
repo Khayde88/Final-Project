@@ -545,7 +545,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     return FileResponse(
-        "./Frontend/index.html"
+        "./Frontend/Home.html"
     )  # {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -563,7 +563,7 @@ async def register(
     }
     result = users_collection.insert_one(new_user)
     return FileResponse(
-        "./Frontend/index.html"
+        "./Frontend/Home.html"
     )  # {"message": "Registration Successful!"}
 
 
