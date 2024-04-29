@@ -45,8 +45,8 @@
         <script src=""></script>
         <div class="card" style="width: 24rem; height:36rem; border: 6px solid; border-radius: 15px;" >
             <div class="card-body" >
-                <button type="button" class="btn-close" aria-label="Close" style="position:absolute;top:0;right:0;" onclick="window.location.href='Home.html';"></button>
-                <i type = "button"class="bi bi-person-circle" style="position:absolute;top:5;left:5; font-size:2rem" onclick="window.location.href='Profile.html';"></i>
+                <button type="button" class="btn-close" aria-label="Close" style="position:absolute;top:0;right:0;" onclick="window.location.href='Home';"></button>
+                <i type = "button"class="bi bi-person-circle" style="position:absolute;top:5;left:5; font-size:2rem" onclick="window.location.href='Profile';"></i>
             <p class="card-text">
                 <h1 class="card-text" style="font-size:1.5rem">  Submit a Price Correction  </h1>
                 <h1 class="card-text" style="font-size:1.5rem">  52246,Walmart,Item: </h1>
@@ -74,7 +74,7 @@
                 var price2 = document.getElementById("price2").value;
                 if (price1 == price2){
                     alert("Price has been updated");
-                    window.location("Home.html")
+                    window.location("Home")
                     //UpdatePrice();
                 }
                 else{

@@ -45,67 +45,47 @@
         <script src=""></script>
         <div class="card" style="width: 24rem; height:36rem; border: 6px solid; border-radius: 15px;" >
             <div class="card-body" >
-                <i type = "button" class= "bi bi-person-circle" style="position:absolute;top:5;left:5; font-size:2rem" onclick="window.location.href='Profile.html';"></i>
-                <i type = "button" class="bi bi-list" style="position:absolute;top:5;right:5; font-size:2rem" onclick="window.location.href='Home.html';"></i>
+                <i type = "button" class= "bi bi-person-circle" style="position:absolute;top:5;left:5; font-size:2rem" onclick="window.location.href='Profile';"></i>
+                <i type = "button" class="bi bi-list" style="position:absolute;top:5;right:5; font-size:2rem" onclick="window.location.href='Home';"></i>
                 <label class="bi bi-search" style="font-size:2rem;position:absolute;top:50;left:10"></label>
                 <input type="text" placeholder="Search location or date" style="border-radius:8px; border-color: black; border-width: 2px; border-style: rounded 8px; width: 80%; height: 2rem; margin: 0 auto; margin-top: 1rem; margin-bottom: 1rem; text-align: center; position:absolute;top:33;left:50">
                 <p style="position:absolute;left:20;top:87"> <b> 26 results found. </b> </p>
             <p class="card-text">
                 <br/>
-
-
- 
-                <div id="listContainer">
-                    <!-- Dynamic list items will be appended here by the fetchItems() function -->
-                </div>
-                
+                <ul class="list-group list-group-flush" id="dynamic-list"></ul>
                 <script>
-                    function fetchItems() {
-                        fetch('/items/')
-                        .then(response => response.json())
-                        .then(items => {
-                            const listContainer = document.getElementById('listContainer');
-                            listContainer.innerHTML = ''; // Clear existing items
-                            items.forEach(item => {
-                                const itemHtml = `
-                                <ul class="list-group list-group-flush">
-                                    <span class="border border-dark">
-                                        <p>${item.date} <i type="button" class="bi bi-trash" data-id="${item.id}" onclick="deleteItem(this.getAttribute('data-id'));" style="position:static; text-align:right; font-size:1.5rem"></i></p>
-                                        <p style="position:static; text-align: center"><b>${item.stores.join(', ')}</b></p>
-                                        <p style="position:static;text-align: left"><label class="bi bi-geo-alt" style="font-size:1.3rem;position:static"></label> <b>${item.location}</b></p>
-                                    </span>
-                                </ul>`
-;
-                                listContainer.innerHTML += itemHtml;
-                            });
+                    fetch('/read-saved-list')
+                    .then(response => response.json())
+                    .then(data => {
+                        const listElement = document.getElementById('dynamic-list');
+                        data.forEach(item => {
+                            const listItem = document.createElement('li');
+                            listItem.className = 'list-group-item';
+                            listItem.innerHTML = `
+                                <p>${item.date} <i type="button" class="bi bi-trash" style="float: right; font-size: 1.5rem" onclick="deleteItem('${item._id}')"></i></p>
+                                <p><b>${item.stores.join(', ')}</b></p>
+                                <p><label class="bi bi-geo-alt" style="font-size:1.3rem;"></label> <b>${item.location}</b></p>
+                            `;
+                            listElement.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+                
+                    function deleteItem(itemId) {
+                        fetch(`/delete-saved-item/${itemId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                location.reload(); // Reload the page to reflect the updated list
+                            } else {
+                                console.error('Error deleting item');
+                            }
                         })
                         .catch(error => console.error('Error:', error));
-}
-
-                    function deleteItem(itemId) {
-                        if (!confirm('Are you sure you want to delete this item?')) {
-                            return;
-                        }
-                        fetch(`/delete/${itemId}`, { method: 'DELETE' })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok.');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                console.log(data.message);
-                                // Logic to remove the item from the page...
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('There was an error deleting the item.');
-                            });
                     }
-                    window.onload = fetchItems;
-                    </script>
-                    
-                <br/>
+                </script>
+                
 
 
             </p>
