@@ -544,7 +544,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return FileResponse(
+        "./Frontend/index.html"
+    )  # {"access_token": access_token, "token_type": "bearer"}
 
 
 # Route to register a new user
@@ -560,7 +562,9 @@ async def register(
         "role": "user",  # Assign default role for new users
     }
     result = users_collection.insert_one(new_user)
-    return {"message": "User registered successfully"}
+    return FileResponse(
+        "./Frontend/index.html"
+    )  # {"message": "Registration Successful!"}
 
 
 # Protected route example (requires authentication)
