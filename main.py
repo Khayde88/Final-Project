@@ -477,6 +477,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pymongo import MongoClient
 from datetime import datetime, timedelta
+from starlette.requests import Request
+from starlette.responses import Response
 
 # JWT Settings
 SECRET_KEY = "SecretKey1234"
@@ -557,6 +559,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         return FileResponse(
             "./Frontend/Home.html"
         )  # {"access_token": access_token, "token_type": "bearer"}
+
+
+# Add a logout route
+@app.post("/logout")
+async def logout(request: Request, response: Response):
+    response.delete_cookie("Authorization")
+    return FileResponse(url="/login")  # Redirect to login page
 
 
 # Route to register a new user with role
