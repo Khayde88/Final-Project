@@ -549,9 +549,14 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
-    return FileResponse(
-        "./Frontend/Home.html"
-    )  # {"access_token": access_token, "token_type": "bearer"}
+
+    # Determine which file to return based on user role
+    if user.get("role") == "admin":
+        return FileResponse("./Frontend/HomeAdmin.html")
+    else:
+        return FileResponse(
+            "./Frontend/Home.html"
+        )  # {"access_token": access_token, "token_type": "bearer"}
 
 
 # Route to register a new user with role
@@ -585,17 +590,6 @@ async def register(
 @app.get("/protected")
 async def protected_route(current_user: dict = Depends(get_current_user)):
     return {"message": "Access granted to protected route"}
-
-
-# Route to serve Home.html or HomeAdmin.html
-@app.get("/Home.html")
-async def read_home(current_user: dict = Depends(get_current_user)):
-    if current_user.get("role") == "admin":
-        # Serve HomeAdmin.html with admin access
-        return FileResponse("./Frontend/HomeAdmin.html")
-    else:
-        # Serve Home.html with regular user access
-        return FileResponse("./Frontend/Home.html")
 
 
 ### END USER AUTHENTICATION
