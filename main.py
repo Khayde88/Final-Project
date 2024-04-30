@@ -549,17 +549,26 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )  # {"access_token": access_token, "token_type": "bearer"}
 
 
-# Route to register a new user
+# Route to register a new user with role
 @app.post("/register")
 async def register(
-    username: str = Form(...), password: str = Form(...), email: str = Form(...)
+    username: str = Form(...),
+    password: str = Form(...),
+    email: str = Form(...),
+    role: str = Form("user"),  # Default role is "user"
 ):
+    # Check if the role is valid
+    if role not in ["user", "admin"]:
+        raise HTTPException(
+            status_code=400, detail="Invalid role. Allowed roles are 'user' or 'admin'"
+        )
+
     hashed_password = pwd_context.hash(password)
     new_user = {
         "username": username,
         "hashed_password": hashed_password,
         "email": email,
-        "role": "user",  # Assign default role for new users
+        "role": role,  # Assign specified role during registration
     }
     result = users_collection.insert_one(new_user)
     return FileResponse(
@@ -573,7 +582,18 @@ async def protected_route(current_user: dict = Depends(get_current_user)):
     return {"message": "Access granted to protected route"}
 
 
-### END USER AUTHENTICAION
+# Route to serve Home.html or HomeAdmin.html
+@app.get("/Home.html")
+async def read_home(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") == "admin":
+        # Serve Home.html with admin access
+        return FileResponse("./Frontend/HomeAdmin.html")
+    else:
+        # Serve Home.html with regular user access
+        return FileResponse("./Frontend/Home.html")
+
+
+### END USER AUTHENTICATION
 
 
 if __name__ == "__main__":
