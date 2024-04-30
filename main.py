@@ -489,7 +489,7 @@ from fastapi import HTTPException
 
 # Update endpoint for modifying existing items
 @app.put("/update/{item_id}")
-async def update_item(item_id: str, updated_item: StoreItem):
+async def update_item(item_id: str, updated_item: SavedListItem):
     # Log the received item ID
     logger.info(f"Received request to update item with ID: {item_id}")
 
