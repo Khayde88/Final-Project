@@ -306,6 +306,11 @@ async def read_register():
     return FileResponse("./Frontend/register.html")
 
 
+@app.get("/homeadmin")
+async def read_register():
+    return FileResponse("./Frontend/HomeAdmin.html")
+
+
 # navigate to EL.html
 @app.get("/el")
 async def read_el():
@@ -586,7 +591,7 @@ async def protected_route(current_user: dict = Depends(get_current_user)):
 @app.get("/Home.html")
 async def read_home(current_user: dict = Depends(get_current_user)):
     if current_user.get("role") == "admin":
-        # Serve Home.html with admin access
+        # Serve HomeAdmin.html with admin access
         return FileResponse("./Frontend/HomeAdmin.html")
     else:
         # Serve Home.html with regular user access
