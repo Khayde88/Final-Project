@@ -561,9 +561,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         )  # {"access_token": access_token, "token_type": "bearer"}
 
 
-# Add a logout route
+# Logout route
 @app.post("/logout")
-async def logout(request: Request, response: Response):
+async def logout(response: Response):
     response.delete_cookie("Authorization")
     return FileResponse(url="/login")  # Redirect to login page
 
