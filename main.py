@@ -140,17 +140,6 @@ async def read_profile():
     logger.info("Index file requested")
     return FileResponse("./Frontend/index.html")
 
-
-@app.get("/inputgenerated")
-async def read_input_generated():
-    return FileResponse("./Frontend/InputGenerated.html")
-
-
-@app.get("/listcomplete")
-async def read_list_complete():
-    return FileResponse("./Frontend/ListComplete.html")
-
-
 @app.get("/profile")
 async def read_profile():
     return FileResponse("./Frontend/login.html")
@@ -159,11 +148,6 @@ async def read_profile():
 @app.get("/priceupdate")
 async def read_price_update():
     return FileResponse("./Frontend/PriceUpdate.html")
-
-
-@app.get("/filter")
-async def read_filter():
-    return FileResponse("./Frontend/Filter.html")
 
 
 @app.get("/sl1")
