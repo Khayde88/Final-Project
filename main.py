@@ -556,9 +556,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if user.get("role") == "admin":
         return FileResponse("./Frontend/HomeAdmin.html")
     else:
-        return FileResponse(
-            "./Frontend/Home.html"
-        )  # {"access_token": access_token, "token_type": "bearer"}
+        return FileResponse("./Frontend/Home.html")
+
+    # Set the access token as a cookie named "Authorization"
+    response.set_cookie(key="Authorization", value=access_token, httponly=True)
+
+    return response  # {"access_token": access_token, "token_type": "bearer"}
 
 
 # Logout route
