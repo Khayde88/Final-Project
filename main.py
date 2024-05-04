@@ -11,6 +11,7 @@ from fastapi import File, UploadFile
 from starlette.responses import JSONResponse
 import pymongo
 import logging
+from pydantic import BaseModel, HttpUrl
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
@@ -176,6 +177,9 @@ async def read_profile():
     logger.info("Index file requested")
     return FileResponse("./Frontend/index.html")
 
+@app.get("/index2")
+async def read_index2():
+    return FileResponse("./Frontend/index2.html")
 
 @app.get("/profile")
 async def read_profile():
@@ -663,6 +667,79 @@ async def protected_route(current_user: dict = Depends(get_current_user)):
 
 
 ### END USER AUTHENTICATION
+class GroceryItem(Document):
+    name: str
+    price: float
+    category: str
+    brand: str
+    quantity: str
+    image: HttpUrl
+
+    class Settings:
+        collection = "grocery_items"
+
+class CreateListInput(Document):
+    items: List[str] 
+
+@app.get("/get-grocery-items")
+async def get_grocery_items():
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Retrieve data from MongoDB
+    grocery_data = list(col.find())
+
+    # Convert ObjectId to string in each item
+    for item in grocery_data:
+        item['_id'] = str(item['_id'])
+
+    # Return the retrieved data
+    return grocery_data
+
+
+@app.on_event("startup")
+async def init_db():
+    # Create a MongoDB client instance
+    client = AsyncIOMotorClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    
+    # Initialize Beanie with the specific database and document models
+    await init_beanie(database=client.grocery_db, document_models=[GroceryItem, CreateListInput])
+    
+    # Log the successful initialization
+    logger.info("Beanie initialized successfully")
+
+@app.post("/add-to-list")
+async def add_to_list(data: CreateListInput):
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    grocery_col = db["grocery_items"]
+    list_col = db["CreateList"]
+
+    
+    # Fetch item IDs based on names
+    query_result = list(grocery_col.find({"name": {"$in": data.items}}))
+    if not query_result:
+        raise HTTPException(status_code=404, detail="Items not found")
+    
+    # Extract names from query results
+    item_names = [item['name'] for item in query_result]
+    
+    # Create and insert the list document
+    list_doc = {"item_names": item_names}
+    list_col.insert_one(list_doc)
+    
+    return {"message": "List created successfully", "list_id": str(list_doc["_id"])}
+\
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=8000)
