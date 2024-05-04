@@ -1,9 +1,12 @@
-# Final-Project
+## Final-Project
 CS:3980:0001 Final Project
+Cade, Guadalupe, Noah
 
-# GroceryGo Backend
+# GroceryGo
 
-This project implements a backend API for the GroceryGo application using FastAPI and MongoDB for user authentication and data storage.
+## GroceryGo Backend
+
+This project implements a backend API for the GroceryGo application using FastAPI and utilizes MongoDB for user authentication and data storage.
 
 ## Features
 
@@ -25,7 +28,13 @@ This project implements a backend API for the GroceryGo application using FastAP
 
 ## Setup
 
-1. Clone the repository:
+1. Clone the repository
+2. Install requirements
+3. Launch application
 
    ```bash
    git clone https://github.com/yourusername/grocerygo-backend.git
+
+   pip install -r requirements.txt
+
+   uvicorn main:app --reload
