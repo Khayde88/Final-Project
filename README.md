@@ -4,6 +4,20 @@ Cade, Guadalupe, Noah
 
 # GroceryGo
 
+![GroceryGo](https://github.com/Khayde88/Final-Project/assets/144306042/31a34f8e-beb0-4713-a9a3-5e773fa55ba1)
+
+### Login
+![Login](https://github.com/Khayde88/Final-Project/assets/144306042/9d7fbacd-130e-4e53-8ad0-53e1ed9f58db)
+
+### Registration
+![Register](https://github.com/Khayde88/Final-Project/assets/144306042/c5b8eb40-747e-45da-ab7e-8e80cdbd465e)
+
+### Create Grocery List
+![CreateList](https://github.com/Khayde88/Final-Project/assets/144306042/f72a72c5-eaa9-4734-9146-1b34a94fbd13)
+
+### Edit List
+![EditList](https://github.com/Khayde88/Final-Project/assets/144306042/43826ad2-3ce6-4a0c-b4b2-c507160f3abb)
+
 ## GroceryGo Backend
 
 This project implements a backend API for the GroceryGo application using FastAPI and utilizes MongoDB for user authentication and data storage.
