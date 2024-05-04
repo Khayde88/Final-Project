@@ -26,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 class SavedListItem(Document):
     date: str
     stores: List[str]
@@ -33,6 +34,7 @@ class SavedListItem(Document):
 
     class Settings:
         collection = "SavedList"
+
 
 class GroceryItem(Document):
     name: str
@@ -46,30 +48,39 @@ class GroceryItem(Document):
     class Settings:
         collection = "grocery_items"
 
+
 # Initialize Beanie with the SavedListItem Document model
 @app.on_event("startup")
 async def init_db():
-    client = AsyncIOMotorClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = AsyncIOMotorClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     await init_beanie(database=client.grocery_db, document_models=[SavedListItem])
     logger.info("Beanie initialized successfully")
+
 
 # CRUD Endpoints
 @app.post("/run-script")
 async def run_script(data: dict):
     # Connect to MongoDB
-    client = pymongo.MongoClient('mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-    db = client['grocery_db']
-    collection = db['SavedList']
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
+    db = client["grocery_db"]
+    collection = db["SavedList"]
 
     # Write data to MongoDB
     collection.insert_one(data)
 
     return {"message": "Data written to Saved List successfully"}
 
+
 @app.get("/read-saved-list")
 async def read_saved_list():
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["SavedList"]
 
@@ -78,15 +89,18 @@ async def read_saved_list():
 
     # Convert ObjectId to string in each item
     for item in saved_data:
-        item['_id'] = str(item['_id'])
+        item["_id"] = str(item["_id"])
 
     # Return the retrieved data
     return saved_data
 
+
 @app.delete("/delete-saved-item/{item_id}")
 async def delete_saved_item(item_id: str):
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["SavedList"]
 
@@ -103,14 +117,17 @@ async def delete_saved_item(item_id: str):
         return {"message": "Item deleted successfully"}
     else:
         raise HTTPException(status_code=404, detail="Item not found")
-    
+
+
 @app.put("/update/{item_id}")
 async def update_item(item_id: str, updated_item: SavedListItem):
     # Log the received item ID
     logger.info(f"Received request to update item with ID: {item_id}")
-    
+
     # Connect to MongoDB
-    client = MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["SavedList"]
 
@@ -124,11 +141,13 @@ async def update_item(item_id: str, updated_item: SavedListItem):
     # Update the item in MongoDB
     result = col.update_one(
         {"_id": obj_id},
-        {"$set": {
-            "date": updated_item.date,
-            "stores": updated_item.stores,
-            "location": updated_item.location
-        }}
+        {
+            "$set": {
+                "date": updated_item.date,
+                "stores": updated_item.stores,
+                "location": updated_item.location,
+            }
+        },
     )
 
     # Check if the item was updated successfully
@@ -141,9 +160,12 @@ async def update_item(item_id: str, updated_item: SavedListItem):
     # Return the updated item
     return updated_item
 
+
 @app.get("/")
 async def read_index():
     return FileResponse("./Frontend/Home.html")
+
+
 @app.get("/home")
 async def read_index():
     return FileResponse("./Frontend/Home.html")
@@ -153,6 +175,7 @@ async def read_index():
 async def read_profile():
     logger.info("Index file requested")
     return FileResponse("./Frontend/index.html")
+
 
 @app.get("/profile")
 async def read_profile():
@@ -227,6 +250,7 @@ def run_script(input_data: str = Form(...)):
 
     return {"message": "Data written to MongoDB successfully"}
 
+
 @app.get("/read-saved-list")
 async def read_saved_list():
     # Connect to MongoDB
@@ -270,6 +294,7 @@ async def delete_saved_item(item_id: str):
     else:
         raise HTTPException(status_code=404, detail="Item not found")
 
+
 # Update endpoint for modifying existing items
 @app.put("/update/{item_id}")
 async def update_item(item_id: str, updated_item: SavedListItem):
@@ -312,19 +337,30 @@ async def update_item(item_id: str, updated_item: SavedListItem):
     # Return the updated item
     return updated_item
 
+
 # CRUD Endpoints for Grocery Items
 @app.post("/upload-image")
 async def upload_image(image: UploadFile = File(...)):
     # Save the uploaded image to a directory or database
-    # For simplicity, let's assume you save it to a directory named 'uploads'
     with open(f"uploads/{image.filename}", "wb") as f:
         f.write(await image.read())
     return {"message": "Image uploaded successfully"}
 
+
 @app.post("/create-grocery-item")
-async def create_grocery_item(name: str, price: float, category: str, brand: str, quantity: str, image_url: str, store: str):
+async def create_grocery_item(
+    name: str,
+    price: float,
+    category: str,
+    brand: str,
+    quantity: str,
+    image_url: str,
+    store: str,
+):
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["grocery_items"]
 
@@ -336,7 +372,7 @@ async def create_grocery_item(name: str, price: float, category: str, brand: str
         "brand": brand,
         "quantity": quantity,
         "image_url": image_url,
-        "store": store
+        "store": store,
     }
     result = col.insert_one(item_data)
 
@@ -345,10 +381,13 @@ async def create_grocery_item(name: str, price: float, category: str, brand: str
     else:
         raise HTTPException(status_code=500, detail="Failed to create grocery item")
 
+
 @app.delete("/delete-grocery-item/{item_id}")
 async def delete_grocery_item(item_id: str):
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["grocery_items"]
 
@@ -366,10 +405,22 @@ async def delete_grocery_item(item_id: str):
     else:
         raise HTTPException(status_code=404, detail="Grocery item not found")
 
+
 @app.put("/update-grocery-item/{item_id}")
-async def update_grocery_item(item_id: str, name: str, price: float, category: str, brand: str, quantity: str, image_url: str, store: str):
+async def update_grocery_item(
+    item_id: str,
+    name: str,
+    price: float,
+    category: str,
+    brand: str,
+    quantity: str,
+    image_url: str,
+    store: str,
+):
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["grocery_items"]
 
@@ -382,15 +433,17 @@ async def update_grocery_item(item_id: str, name: str, price: float, category: s
     # Update the grocery item in MongoDB
     result = col.update_one(
         {"_id": obj_id},
-        {"$set": {
-            "name": name,
-            "price": price,
-            "category": category,
-            "brand": brand,
-            "quantity": quantity,
-            "image_url": image_url,
-            "store": store
-        }}
+        {
+            "$set": {
+                "name": name,
+                "price": price,
+                "category": category,
+                "brand": brand,
+                "quantity": quantity,
+                "image_url": image_url,
+                "store": store,
+            }
+        },
     )
 
     if result.matched_count == 0:
@@ -398,10 +451,13 @@ async def update_grocery_item(item_id: str, name: str, price: float, category: s
     else:
         return {"message": "Grocery item updated successfully"}
 
+
 @app.get("/read-grocery-items")
 async def read_grocery_items():
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["grocery_items"]
 
@@ -414,11 +470,14 @@ async def read_grocery_items():
 
     return grocery_items
 
+
 # Update image URL for a grocery item
 @app.put("/update-image/{item_id}")
 async def update_image(item_id: str, image: UploadFile = File(...)):
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["grocery_items"]
 
@@ -429,25 +488,27 @@ async def update_image(item_id: str, image: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Invalid item ID")
 
     # Save the uploaded image to a directory or database
-    # For simplicity, let's assume you save it to a directory named 'uploads'
     with open(f"uploads/{image.filename}", "wb") as f:
         f.write(await image.read())
 
     # Update the image URL in MongoDB
     result = col.update_one(
-        {"_id": obj_id},
-        {"$set": {"image_url": f"uploads/{image.filename}"}}
+        {"_id": obj_id}, {"$set": {"image_url": f"uploads/{image.filename}"}}
     )
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Grocery item not found")
     else:
         return {"message": "Grocery item image updated successfully"}
+
+
 # Define the route to update grocery item image
 @app.put("/update-grocery-item-image/{item_id}")
 async def update_grocery_item_image(item_id: str, image: UploadFile = File(...)):
     # Connect to MongoDB
-    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = pymongo.MongoClient(
+        "mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    )
     db = client["grocery_db"]
     col = db["grocery_items"]
 
@@ -458,14 +519,12 @@ async def update_grocery_item_image(item_id: str, image: UploadFile = File(...))
         raise HTTPException(status_code=400, detail="Invalid item ID")
 
     # Save the uploaded image to a directory or database
-    # For simplicity, let's assume you save it to a directory named 'uploads'
     with open(f"uploads/{image.filename}", "wb") as f:
         f.write(await image.read())
 
     # Update the image URL in MongoDB
     result = col.update_one(
-        {"_id": obj_id},
-        {"$set": {"image_url": f"uploads/{image.filename}"}}
+        {"_id": obj_id}, {"$set": {"image_url": f"uploads/{image.filename}"}}
     )
 
     if result.matched_count == 0:
@@ -482,7 +541,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pymongo import MongoClient
 from datetime import datetime, timedelta
-from starlette.requests import Request
 from starlette.responses import Response
 
 # JWT Settings
@@ -563,11 +621,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     else:
         return FileResponse("./Frontend/Home.html")
 
-    # Set the access token as a cookie named "Authorization"
-    response.set_cookie(key="Authorization", value=access_token, httponly=True)
-
-    return response  # {"access_token": access_token, "token_type": "bearer"}
-
 
 # Logout route
 @app.post("/logout")
@@ -603,10 +656,11 @@ async def register(
     )  # {"message": "Registration Successful!"}
 
 
-# Protected route example (requires authentication)
+# Protected route (requires authentication)
 @app.get("/protected")
 async def protected_route(current_user: dict = Depends(get_current_user)):
     return {"message": "Access granted to protected route"}
+
 
 ### END USER AUTHENTICATION
 
