@@ -69,6 +69,7 @@
     </style>   
 </head>
 <body>
+
     <div class="container">
         <div class="card">
             <div class="card-body">
@@ -82,5 +83,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Conditional rendering of logout button -->
+    <script>
+        if (document.cookie.includes('Authorization')) {
+            document.write('<a href="/logout">Logout</a>');
+        }
+    </script>
+
 </body>
 </html>
