@@ -84,12 +84,38 @@
         </div>
     </div>
 
-    <!-- Conditional rendering of logout button -->
-    <script>
-        if (document.cookie.includes('Authorization')) {
-            document.write('<a href="/logout">Logout</a>');
-        }
-    </script>
+    <!-- Example logout button -->
+<button id="logoutButton" style="display: none;" onclick="logout()">Logout</button>
+
+<script>
+    // Check if the access token exists (indicating user is logged in)
+    const accessToken = localStorage.getItem('accessToken'); // Assuming token is stored in localStorage
+
+    if (accessToken) {
+        // Show the logout button if user is authenticated
+        document.getElementById('logoutButton').style.display = 'block';
+    }
+
+    // Function to logout (clear token and redirect)
+    function logout() {
+        // Clear token from localStorage
+        localStorage.removeItem('accessToken');
+
+        // Send POST request to logout endpoint
+        fetch('/logout', {
+            method: 'POST',
+            credentials: 'same-origin', // Include cookies in the request
+        })
+        .then(response => {
+            // Redirect to login page after logout
+            window.location.href = '/login';
+        })
+        .catch(error => {
+            console.error('Error logging out:', error);
+        });
+    }
+</script>
+
 
 </body>
 </html>

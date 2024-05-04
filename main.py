@@ -422,7 +422,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.post("/logout")
 async def logout(response: Response):
     response.delete_cookie("Authorization")
-    return FileResponse(url="/login")  # Redirect to login page
+    return FileResponse("./Frontend/login.html")  # Redirect to login page
 
 
 # Route to register a new user with role

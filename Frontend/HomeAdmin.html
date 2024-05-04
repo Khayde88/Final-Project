@@ -78,9 +78,6 @@
                     <button type="button" class="btn btn-primary" onclick="window.location.href='sl1'">Saved Lists</button>
                     <button type="button" class="btn btn-primary" onclick="window.location.href='index'">Edit Grocery Items</button>
                     <button type="button" class="btn submit-btn" onclick="window.location.href='priceupdate'">Submit Price Update</button>
-                    <form action="/logout" method="post">
-                        <button type="submit" class="btn btn-primary">Logout</button>
-                    </form>
                 </ul>
                 
             </div>
@@ -89,13 +86,36 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script>
-        if (document.cookie.includes('Authorization')) {
-            document.write('<a href="/logout">Logout</a>');
+
+        // Check if the access token exists (indicating user is logged in)
+        const accessToken = localStorage.getItem('accessToken'); // Assuming token is stored in localStorage
+
+        if (accessToken) {
+            // Show the logout button if user is authenticated
+            document.getElementById('logoutButton').style.display = 'block';
         }
-        
-        function Construction() {
-            alert("Under Construction");
+
+        // Function to logout (clear token and redirect)
+        function logout() {
+            // Clear token from localStorage
+            localStorage.removeItem('accessToken');
+
+            // Send POST request to logout endpoint
+            fetch('/logout', {
+                method: 'POST',
+                credentials: 'same-origin', // Include cookies in the request
+            })
+            .then(response => {
+                // Redirect to login page after logout
+                window.location.href = '/login';
+            })
+            .catch(error => {
+                console.error('Error logging out:', error);
+            });
         }
+            function Construction() {
+                alert("Under Construction");
+            }
     </script>
 </body>
 </html>
