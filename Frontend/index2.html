@@ -121,19 +121,22 @@
         });
 
         function submitSelection() {
-            const selectedItems = Array.from(document.querySelectorAll('.item input[type="checkbox"]:checked')).map(cb => cb.value);
-            fetch('/add-to-list', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({items: selectedItems})
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Items added to your list!');
-                location.reload();
-            })
-            .catch(error => console.error('Error:', error));
-        }
+    const selectedItems = Array.from(document.querySelectorAll('.item input[type="checkbox"]:checked'))
+                               .map(cb => cb.parentNode.querySelector('p').textContent.split(' - $')[0].trim());
+
+    fetch('/add-to-list', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({items: selectedItems})
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Items added to your list!');
+        location.reload();
+    })
+    .catch(error => console.error('Error:', error));
+}
+
     </script>
 </body>
 </html>

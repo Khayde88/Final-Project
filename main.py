@@ -450,12 +450,8 @@ class GroceryItem(Document):
     class Settings:
         collection = "grocery_items"
 
-class CreateListItem(Document):
-    item_names: List[str]  # This will store names of the items
-
-    class Settings:
-        collection = "CreateList"
-
+class CreateListInput(Document):
+    items: List[str] 
 
 @app.get("/get-grocery-items")
 async def get_grocery_items():
@@ -475,21 +471,41 @@ async def get_grocery_items():
     return grocery_data
 
 
+@app.on_event("startup")
+async def init_db():
+    # Create a MongoDB client instance
+    client = AsyncIOMotorClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    
+    # Initialize Beanie with the specific database and document models
+    await init_beanie(database=client.grocery_db, document_models=[GroceryItem, CreateListInput])
+    
+    # Log the successful initialization
+    logger.info("Beanie initialized successfully")
+
 @app.post("/add-to-list")
-async def add_to_list(item_ids: List[str]):
-    # Fetch items by IDs
-    listitems = await GroceryItem.find(GroceryItem.id.in_(item_ids)).to_list()
-    if not listitems:
+async def add_to_list(data: CreateListInput):
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    grocery_col = db["grocery_items"]
+    list_col = db["CreateList"]
+
+    
+    # Fetch item IDs based on names
+    query_result = list(grocery_col.find({"name": {"$in": data.items}}))
+    if not query_result:
         raise HTTPException(status_code=404, detail="Items not found")
+    
+    # Extract names from query results
+    item_names = [item['name'] for item in query_result]
+    
+    # Create and insert the list document
+    list_doc = {"item_names": item_names}
+    list_col.insert_one(list_doc)
+    
+    return {"message": "List created successfully", "list_id": str(list_doc["_id"])}
+\
 
-    # Extract names from items
-    listitem_names = [item.name for item in listitems]
 
-    # Create a new entry in CreateList collection
-    create_list_item = CreateListItem(item_names=listitem_names)
-    await create_list_item.insert()
-
-    return {"message": "Items added to the list successfully", "listitem_names": listitem_names}
 
 
 
