@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pymongo import MongoClient
 from bson import ObjectId
+from fastapi import File, UploadFile
+from starlette.responses import JSONResponse
 import pymongo
 import logging
 
@@ -31,6 +33,18 @@ class SavedListItem(Document):
 
     class Settings:
         collection = "SavedList"
+
+class GroceryItem(Document):
+    name: str
+    price: float
+    category: str
+    brand: str
+    quantity: str
+    image_url: str
+    store: str
+
+    class Settings:
+        collection = "grocery_items"
 
 # Initialize Beanie with the SavedListItem Document model
 @app.on_event("startup")
@@ -297,6 +311,167 @@ async def update_item(item_id: str, updated_item: SavedListItem):
 
     # Return the updated item
     return updated_item
+
+# CRUD Endpoints for Grocery Items
+@app.post("/upload-image")
+async def upload_image(image: UploadFile = File(...)):
+    # Save the uploaded image to a directory or database
+    # For simplicity, let's assume you save it to a directory named 'uploads'
+    with open(f"uploads/{image.filename}", "wb") as f:
+        f.write(await image.read())
+    return {"message": "Image uploaded successfully"}
+
+@app.post("/create-grocery-item")
+async def create_grocery_item(name: str, price: float, category: str, brand: str, quantity: str, image_url: str, store: str):
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Insert new grocery item into MongoDB
+    item_data = {
+        "name": name,
+        "price": price,
+        "category": category,
+        "brand": brand,
+        "quantity": quantity,
+        "image_url": image_url,
+        "store": store
+    }
+    result = col.insert_one(item_data)
+
+    if result.inserted_id:
+        return {"message": "Grocery item created successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to create grocery item")
+
+@app.delete("/delete-grocery-item/{item_id}")
+async def delete_grocery_item(item_id: str):
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Convert item_id to ObjectId
+    try:
+        obj_id = ObjectId(item_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid item ID")
+
+    # Delete item from MongoDB
+    result = col.delete_one({"_id": obj_id})
+
+    if result.deleted_count == 1:
+        return {"message": "Grocery item deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Grocery item not found")
+
+@app.put("/update-grocery-item/{item_id}")
+async def update_grocery_item(item_id: str, name: str, price: float, category: str, brand: str, quantity: str, image_url: str, store: str):
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Convert item_id to ObjectId
+    try:
+        obj_id = ObjectId(item_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid item ID")
+
+    # Update the grocery item in MongoDB
+    result = col.update_one(
+        {"_id": obj_id},
+        {"$set": {
+            "name": name,
+            "price": price,
+            "category": category,
+            "brand": brand,
+            "quantity": quantity,
+            "image_url": image_url,
+            "store": store
+        }}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Grocery item not found")
+    else:
+        return {"message": "Grocery item updated successfully"}
+
+@app.get("/read-grocery-items")
+async def read_grocery_items():
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Retrieve all grocery items from MongoDB
+    grocery_items = list(col.find())
+
+    # Convert ObjectId to string in each item
+    for item in grocery_items:
+        item["_id"] = str(item["_id"])
+
+    return grocery_items
+
+# Update image URL for a grocery item
+@app.put("/update-image/{item_id}")
+async def update_image(item_id: str, image: UploadFile = File(...)):
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Convert item_id to ObjectId
+    try:
+        obj_id = ObjectId(item_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid item ID")
+
+    # Save the uploaded image to a directory or database
+    # For simplicity, let's assume you save it to a directory named 'uploads'
+    with open(f"uploads/{image.filename}", "wb") as f:
+        f.write(await image.read())
+
+    # Update the image URL in MongoDB
+    result = col.update_one(
+        {"_id": obj_id},
+        {"$set": {"image_url": f"uploads/{image.filename}"}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Grocery item not found")
+    else:
+        return {"message": "Grocery item image updated successfully"}
+# Define the route to update grocery item image
+@app.put("/update-grocery-item-image/{item_id}")
+async def update_grocery_item_image(item_id: str, image: UploadFile = File(...)):
+    # Connect to MongoDB
+    client = pymongo.MongoClient("mongodb+srv://canderson32:Kotaikanaxai_88@cluster0.dswl3pn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    db = client["grocery_db"]
+    col = db["grocery_items"]
+
+    # Convert item_id to ObjectId
+    try:
+        obj_id = ObjectId(item_id)
+    except:
+        raise HTTPException(status_code=400, detail="Invalid item ID")
+
+    # Save the uploaded image to a directory or database
+    # For simplicity, let's assume you save it to a directory named 'uploads'
+    with open(f"uploads/{image.filename}", "wb") as f:
+        f.write(await image.read())
+
+    # Update the image URL in MongoDB
+    result = col.update_one(
+        {"_id": obj_id},
+        {"$set": {"image_url": f"uploads/{image.filename}"}}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Grocery item not found")
+    else:
+        return {"message": "Grocery item image updated successfully"}
 
 
 ### USER AUTHENTICATION
