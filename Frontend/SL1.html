@@ -119,7 +119,6 @@
         <h2>Edit Lists</h2>
         <hr class="separator">
         <div id="lists">
-            <!-- Lists will be displayed here dynamically -->
         </div>
     </div>
 
@@ -162,7 +161,7 @@
                     })
                 });
                 if (response.ok) {
-                    fetchLists(); // Refresh the lists after update
+                    fetchLists(); 
                 } else {
                     alert('Failed to update item.');
                 }
